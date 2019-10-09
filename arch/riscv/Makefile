@@ -1,5 +1,5 @@
 $(obj):$(dep)	
-	$(LD) -o $(TOP_DIR)/$(obj) kernel/head.o init/main.o -Map=$(TOP_DIR)/System.map
+	@echo Generate Object File...
 $(TOP_DIR)/arch/riscv/kernel/head.o:
 	$(MAKE) -C kernel
 $(TOP_DIR)/arch/riscv/init/main.o:
@@ -9,5 +9,3 @@ $(TOP_DIR)/arch/riscv/init/main.o:
 clean:
 	-$(MAKE) -C init clean
 	-$(MAKE) -C kernel clean
-	-rm -f $(TOP_DIR)/$(obj)
-	-rm -f $(TOP_DIR)/System.map 

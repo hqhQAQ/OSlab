@@ -1,0 +1,38 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0xffffffe000000000                . = 0xffffffe000000000
+                0xffffffe000000000                _start = .
+
+.text           0xffffffe000000000       0x12
+ *(.text)
+ .text          0xffffffe000000000        0x4 arch/riscv/kernel/head.o
+ .text          0xffffffe000000004        0xe arch/riscv/init/main.o
+                0xffffffe000000004                start_kernel
+
+.data           0xffffffe000000012        0x0
+ *(.data)
+ .data          0xffffffe000000012        0x0 arch/riscv/kernel/head.o
+ .data          0xffffffe000000012        0x0 arch/riscv/init/main.o
+
+.bss            0xffffffe000000012        0x0
+ *(.bss)
+ .bss           0xffffffe000000012        0x0 arch/riscv/kernel/head.o
+ .bss           0xffffffe000000012        0x0 arch/riscv/init/main.o
+LOAD arch/riscv/kernel/head.o
+LOAD arch/riscv/init/main.o
+OUTPUT(/home/janei/OSLab/lab1/vmlinux elf64-littleriscv)
+
+.comment        0x0000000000000000       0x11
+ .comment       0x0000000000000000       0x11 arch/riscv/init/main.o
+                                         0x12 (size before relaxing)
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 arch/riscv/init/main.o

@@ -1,5 +1,5 @@
 OUTPUT_ARCH(riscv)
-ENRTY(_start)
+ENTRY(_start)
 SECTIONS
 {
     . = 0xffffffe000000000;
