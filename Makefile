@@ -6,7 +6,7 @@ CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
 
-CFLAGS = -g
+CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections
 
 obj = vmlinux
 TOP_DIR = $(PWD)
