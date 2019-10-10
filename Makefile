@@ -19,13 +19,7 @@ LDS = $(TOP_DIR)/arch/riscv/kernel/vmlinux.lds
 srctree = $(TOP_DIR)
 objtree = $(TOP_DIR)
 
-INCLUDE = 	-I$(srctree)/arch/riscv/include/uapi \
-			-I$(objtree)/arch/riscv/include/generated/uapi \
-			-I$(srctree)/include/uapi \
-			-I$(objtree)/include/generated/uapi \
-			-I$(srctree)/arch/riscv/include \
-			-I$(objtree)/arch/riscv/include/generated \
-			-I$(objtree)/include 
+INCLUDE = 	-I$(srctree)/arch/riscv/include
 
 export CC
 export LD
@@ -39,10 +33,11 @@ export INCLUDE
 export LDS
 export CFLAGS
 
-$(obj): 
+$(obj):
 	$(MAKE) -C arch/riscv
-	$(LD) -T $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/init/main.o -Map=$(TOP_DIR)/System.map
-	cp vmlinux arch/riscv/boot/Image
+	$(LD) -T $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/init/main.o
+	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
+	$(CROSS_COMPILE)strip -s vmlinux -o arch/riscv/boot/Image
 
 .PHONY:clean
 

@@ -1,5 +1,5 @@
 main.o : main.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 .PHONY:clean
 clean:
