@@ -6,13 +6,26 @@ CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
 
+CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections
+
 obj = vmlinux
 TOP_DIR = $(PWD)
 dep = $(TOP_DIR)/arch/riscv/init/main.o \
 	  $(TOP_DIR)/arch/riscv/kernel/head.o \
-	  $(TOP_DIR)/arch/riscv/kernel/vmlinux.lds
+	  $(TOP_DIR)/arch/riscv/kernel/vmlinux.lds 
+
 LDS = $(TOP_DIR)/arch/riscv/kernel/vmlinux.lds
-INCLUDE = -I$(TOP_DIR)/arch/riscv/include
+
+srctree = $(TOP_DIR)
+objtree = $(TOP_DIR)
+
+INCLUDE = 	-I$(srctree)/arch/riscv/include/uapi \
+			-I$(objtree)/arch/riscv/include/generated/uapi \
+			-I$(srctree)/include/uapi \
+			-I$(objtree)/include/generated/uapi \
+			-I$(srctree)/arch/riscv/include \
+			-I$(objtree)/arch/riscv/include/generated \
+			-I$(objtree)/include 
 
 export CC
 export LD
@@ -24,6 +37,7 @@ export TOP_DIR
 export dep
 export INCLUDE
 export LDS
+export CFLAGS
 
 $(obj): 
 	$(MAKE) -C arch/riscv
