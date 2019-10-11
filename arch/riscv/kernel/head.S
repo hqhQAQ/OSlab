@@ -20,24 +20,55 @@
 .global _start
 
 _start:
-    # set up stack
-    csrr t0, mhartid
-    slli t0, t0, STACK_SHIFT
-    la sp, stacks + STACK_SIZE
-    add sp, sp, t0
+    # close mie and mip
+    csrw mie, zero
+    csrw mip, zero
+    # set mtvec
+    la t0, trap_handler
+    csrw mtvec, t0
 
-    # park all harts except 0
-    csrr a0, mhartid
-    bnez a0, park
+    csrr t0, mstatus
+    # set mstatus.mie = 0
+    addi t1, zero, -7
+    # t0 = t0 & 0xfffffffffffffff7
+    and t0, t0, t1
+
+    # set mstatus.mpp = 01 to super mode
+    addi t1, zero, 1
+    # t1 = 0x0000_0000_0000_0400
+    slli t1, t1, 11
+    or t0, t0, t1    
+
+    # set mstatus.mpie = 0
+    addi t1, zero, 128
+    addi t2, t2, -1
+    xor t1, t1, t2
+    and t0, t0, t1
+    csrw  mstatus, t0
+
+    # switch to super mode
+    la t0, Super
+    csrw mepc, t0
+    mret
+Super:
+    # set stvec
+    # set mtvec
+    la t0, trap_handler
+    csrw stvec, t0
+    # set up stack
+    slli t3, t3, STACK_SHIFT
+    la sp, stacks + STACK_SIZE
+    add sp, sp, t3
 
     tail start_kernel
 
-park:
-    wfi
-    j park
 
     .bss
     .align 4
     .global stacks
 stacks:
     .skip STACK_SIZE * MAX_HARTS
+
+    .align 2
+trap_handler:
+    mret
