@@ -66,7 +66,7 @@ _start:
     # addi t2, t2, -1
     # xor t1, t1, t2
     # and t0, t0, t1
-    # csrw  mstatus, t0
+    csrw  mstatus, t0
 
     # switch to super mode
 #     la t0, Super
@@ -110,7 +110,7 @@ trap_vector:
 
     # Invoke the handler.
     csrr    a1, mcause
-    bgez    a1, exception
+#    bgez    a1, exception
     jal     trap_handler
 exception:
 

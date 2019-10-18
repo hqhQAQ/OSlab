@@ -6,7 +6,10 @@ CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
 
-CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections
+INCLUDE = 	-I$(srctree)/arch/riscv/include \
+		-I$(srctree)/include
+
+CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE)
 
 obj = vmlinux
 TOP_DIR = $(PWD)
@@ -16,7 +19,6 @@ LDS = -T$(TOP_DIR)/arch/riscv/kernel/vmlinux.lds
 srctree = $(TOP_DIR)
 objtree = $(TOP_DIR)
 
-INCLUDE = 	-I$(srctree)/arch/riscv/include
 
 export CC
 export LD
@@ -34,7 +36,7 @@ all : $(obj)
 $(obj):
 	$(MAKE) -C init
 	$(MAKE) -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o arch/riscv/init/main.o 
+	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o init/main.o 
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean

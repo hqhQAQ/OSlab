@@ -1,4 +1,5 @@
-all:kernel.lib
+a:
+	$(MAKE) -C kernel
 
 .PHONY:clean
 clean:

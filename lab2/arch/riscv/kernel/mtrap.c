@@ -2,5 +2,6 @@
 
 void trap_handler() 
 {
+    ns16550a_init();
     ns16550a_putchar('h');
 }
