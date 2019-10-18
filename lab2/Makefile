@@ -35,8 +35,9 @@ export CFLAGS
 all : $(obj)
 $(obj):
 	$(MAKE) -C init
+	$(MAKE) -C drivers
 	$(MAKE) -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o init/main.o 
+	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o arch/riscv/init/main.o drivers/ns16550a.c
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean
