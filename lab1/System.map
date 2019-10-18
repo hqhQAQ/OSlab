@@ -1,0 +1,102 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ram              0x0000000080000000 0x0000000008000000 axw !rl
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000080000000      0x228
+                0x0000000080000000                PROVIDE (_text_start = .)
+ *(.text.init)
+ .text.init     0x0000000080000000       0x1e arch/riscv/kernel/head.o
+                0x0000000080000000                _start
+ *(.text .text.*)
+ .text          0x000000008000001e        0x0 arch/riscv/kernel/head.o
+ .text          0x000000008000001e        0x0 arch/riscv/init/main.o
+ .text.getauxval
+                0x000000008000001e       0x4a arch/riscv/init/main.o
+                0x000000008000001e                getauxval
+ .text.ns16550a_init
+                0x0000000080000068       0xb6 arch/riscv/init/main.o
+ .text.ns16550a_getchar
+                0x000000008000011e       0x42 arch/riscv/init/main.o
+ .text.ns16550a_putchar
+                0x0000000080000160       0x4c arch/riscv/init/main.o
+ .text.start_kernel
+                0x00000000800001ac       0x7c arch/riscv/init/main.o
+                0x00000000800001ac                start_kernel
+                0x0000000080000228                PROVIDE (_text_end = .)
+
+.rodata         0x0000000080000228        0x0
+                0x0000000080000228                PROVIDE (_rodata_start = .)
+ *(.rodata .rodata.*)
+                0x0000000080000228                PROVIDE (_rodata_end = .)
+
+.data           0x0000000080000228      0xe28
+                0x0000000080001000                . = ALIGN (0x1000)
+ *fill*         0x0000000080000228      0xdd8 
+                0x0000000080001000                PROVIDE (_data_start = .)
+ *(.sdata .sdata.*)
+ *(.data .data.*)
+ .data          0x0000000080001000        0x0 arch/riscv/kernel/head.o
+ .data          0x0000000080001000        0x0 arch/riscv/init/main.o
+ .data.__auxv   0x0000000080001000       0x50 arch/riscv/init/main.o
+                0x0000000080001000                __auxv
+                0x0000000080001050                PROVIDE (_data_end = .)
+
+.bss            0x0000000080001050     0x1010
+                0x0000000080001050                PROVIDE (_bss_start = .)
+ *(.sbss .sbss.*)
+ .sbss.uart     0x0000000080001050        0x8 arch/riscv/init/main.o
+ *(.bss .bss.*)
+ *fill*         0x0000000080001058        0x8 
+ .bss           0x0000000080001060     0x1000 arch/riscv/kernel/head.o
+                0x0000000080001060                stacks
+ .bss           0x0000000080002060        0x0 arch/riscv/init/main.o
+                0x0000000080002060                PROVIDE (_bss_end = .)
+                0x0000000080000000                PROVIDE (_memory_start = ORIGIN (ram))
+                0x0000000088000000                PROVIDE (_memory_end = (ORIGIN (ram) + LENGTH (ram)))
+LOAD arch/riscv/kernel/head.o
+LOAD arch/riscv/init/main.o
+OUTPUT(/home/janei/OSLab/lab1/vmlinux elf64-littleriscv)
+
+.debug_line     0x0000000000000000      0x2be
+ .debug_line    0x0000000000000000       0x6b arch/riscv/kernel/head.o
+ .debug_line    0x000000000000006b      0x253 arch/riscv/init/main.o
+
+.debug_info     0x0000000000000000      0x308
+ .debug_info    0x0000000000000000       0x2e arch/riscv/kernel/head.o
+ .debug_info    0x000000000000002e      0x2da arch/riscv/init/main.o
+
+.debug_abbrev   0x0000000000000000      0x16d
+ .debug_abbrev  0x0000000000000000       0x14 arch/riscv/kernel/head.o
+ .debug_abbrev  0x0000000000000014      0x159 arch/riscv/init/main.o
+
+.debug_aranges  0x0000000000000000       0xa0
+ .debug_aranges
+                0x0000000000000000       0x30 arch/riscv/kernel/head.o
+ .debug_aranges
+                0x0000000000000030       0x70 arch/riscv/init/main.o
+
+.debug_str      0x0000000000000000      0x358
+ .debug_str     0x0000000000000000       0x3c arch/riscv/kernel/head.o
+ .debug_str     0x000000000000003c      0x31c arch/riscv/init/main.o
+                                        0x335 (size before relaxing)
+
+.debug_ranges   0x0000000000000000       0x60
+ .debug_ranges  0x0000000000000000       0x60 arch/riscv/init/main.o
+
+.comment        0x0000000000000000       0x11
+ .comment       0x0000000000000000       0x11 arch/riscv/init/main.o
+                                         0x12 (size before relaxing)
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 arch/riscv/init/main.o
+
+.debug_frame    0x0000000000000000      0x100
+ .debug_frame   0x0000000000000000      0x100 arch/riscv/init/main.o
