@@ -7,9 +7,10 @@ AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
 
 INCLUDE = 	-I$(srctree)/arch/riscv/include \
-		-I$(srctree)/include
+			-I$(srctree)/lib/include
 
-CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE)
+
+CFLAGS = -c -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE)
 ASFLAGS = -g
 
 obj = vmlinux

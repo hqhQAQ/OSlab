@@ -5,5 +5,5 @@ int count = 0;
 
 void trap_handler() 
 {
-   printf("%d\n", count++);
+   printf("[M] Machine Mode Timer Interrupt %d\n", count++);
 }
