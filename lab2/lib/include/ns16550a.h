@@ -48,5 +48,6 @@ enum {
 extern volatile uint8_t *uart;
 int ns16550a_putchar(int ch);
 void ns16550a_init();
+int ns16550a_getchar();
 
 #endif

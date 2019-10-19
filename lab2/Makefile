@@ -37,9 +37,9 @@ export ASFLAGS
 all : $(obj)
 $(obj):
 	$(MAKE) -C init
-	$(MAKE) -C drivers
+	$(MAKE) -C lib
 	$(MAKE) -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o init/main.o drivers/ns16550a.o
+	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o init/main.o lib/std.a
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean

@@ -20,3 +20,12 @@ int ns16550a_putchar(int ch)
         ;
     return uart[UART_THR] = ch & 0xff;
 }
+
+int ns16550a_getchar()
+{
+    if (uart[UART_LSR] & UART_LSR_DA) {
+        return uart[UART_RBR];
+    } else {
+        return -1;
+    }
+}

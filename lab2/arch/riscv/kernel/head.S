@@ -4,6 +4,9 @@
 .equ STACK_SHIFT, 10
 .equ REGBYTES, 8
 .equ CONTEXT_SIZE, (SAVE_REGS * REGBYTES)
+.equ CLINT_BASE 0x2000000
+.equ MTIMECMP_OFFSET 0x4000
+.equ MTIME 0xBFF8
 
 # save register to stack
 .macro lxsp a, b
@@ -29,8 +32,12 @@ sd \a, ((\b)*REGBYTES)(sp)
 .global _start
 
 _start:
+    # close other harts
+    csrr a0, mhartid
+    bnez a0, park
 
-    li a1, 0x2004000
+    # init mtimecmp
+    li a1, CLINT_BASE
     addi t2, zero, 1
     sd t2, 0(a1)
 
@@ -39,9 +46,9 @@ _start:
     la sp, stacks + STACK_SIZE
     add sp, sp, t3
 
-    # close other harts
-    csrr a0, mhartid
-    bnez a0, park
+    # init ns16550a
+    jal ra, ns16550a_init
+
     # init .bss
 
     # set mideleg
@@ -50,6 +57,7 @@ _start:
 
     # set [m|s]status, [m|s]ie
 
+    # enable time interrupt
     li t0, 128
     csrw mie, t0
     csrw mip, t0
@@ -67,7 +75,6 @@ _start:
     # t1 = 0x0000_0000_0000_0400
     # slli t1, t1, 11
     # or t0, t0, t1    
-
     # set mstatus.mpie = 0
     # addi t1, zero, 128
     # addi t2, t2, -1
@@ -77,14 +84,14 @@ _start:
     add t0, zero, zero
 
     # switch to super mode
-#     la t0, Super
-#     csrw mepc, t0
-#     mret
-# Super:
-#     # set stvec
-#     # set mtvec
-#     la t0, trap_vector
-#     csrw stvec, t0
+    # la t0, Super
+    # csrw mepc, t0
+    # mret
+Super:
+    # set stvec
+    # set mtvec
+    # la t0, trap_vector
+    # csrw stvec, t0
     tail start_kernel
 
 park:
@@ -115,10 +122,10 @@ trap_vector:
     # Invoke the handler.
     csrr    a1, mcause
     csrr    a2, mepc    
-
+    # mcause > 0 == is a exception
     bgez    a1, exception
-
-
+    # mcause < 0 == is a interrupt
+    # mtimecmp += mtime + 2^22
     li a1, 0x2004000
     li a2, 0x200BFF8
     ld t0, 0(a1)
@@ -129,7 +136,6 @@ trap_vector:
     sd t0, 0(a1) 
     jal ra, trap_handler
 exception:
-
     # Restore registers.
     lxsp    ra, 0
     lxsp    a0, 1
@@ -148,7 +154,6 @@ exception:
     lxsp    t5, 14
     lxsp    t6, 15
     addi sp, sp, CONTEXT_SIZE
-
     # Return
     mret
 
