@@ -29,10 +29,19 @@ sd \a, ((\b)*REGBYTES)(sp)
 .global _start
 
 _start:
+
+    li a1, 0x2004000
+    addi t2, zero, 1
+    sd t2, 0(a1)
+
     # set up stack
     slli t3, t3, STACK_SHIFT
     la sp, stacks + STACK_SIZE
     add sp, sp, t3
+
+    # close other harts
+    csrr a0, mhartid
+    bnez a0, park
     # init .bss
 
     # set mideleg
@@ -41,18 +50,16 @@ _start:
 
     # set [m|s]status, [m|s]ie
 
-    # 打开机器模式下的时钟中断
-    li t0, 7
+    li t0, 128
     csrw mie, t0
     csrw mip, t0
     # set mtvec
     la t0, trap_vector
     csrw mtvec, t0
 
-    csrr t0, mstatus
     # set mstatus.mie = 1
+    csrr t0, mstatus
     addi t1, zero, 8
-    # t0 = t0 | 0x0000000000000008
     or t0, t0, t1
 
     # set mstatus.mpp = 01 to super mode
@@ -67,6 +74,7 @@ _start:
     # xor t1, t1, t2
     # and t0, t0, t1
     csrw  mstatus, t0
+    add t0, zero, zero
 
     # switch to super mode
 #     la t0, Super
@@ -77,17 +85,13 @@ _start:
 #     # set mtvec
 #     la t0, trap_vector
 #     csrw stvec, t0
-
     tail start_kernel
 
+park:
+    wfi
+    j park
 
-    .bss
     .align 4
-    .global stacks
-stacks:
-    .skip STACK_SIZE * MAX_HARTS
-
-    .align 2
 trap_vector:
     # Save registers.
     addi    sp, sp, -CONTEXT_SIZE
@@ -110,8 +114,20 @@ trap_vector:
 
     # Invoke the handler.
     csrr    a1, mcause
-#    bgez    a1, exception
-    jal     trap_handler
+    csrr    a2, mepc    
+
+    bgez    a1, exception
+
+
+    li a1, 0x2004000
+    li a2, 0x200BFF8
+    ld t0, 0(a1)
+    ld t1, 0(a2)
+    addi t2, zero, 1
+    slli t2, t2, 22
+    add t0, t1, t2
+    sd t0, 0(a1) 
+    jal ra, trap_handler
 exception:
 
     # Restore registers.
@@ -135,3 +151,9 @@ exception:
 
     # Return
     mret
+
+    .bss
+    .align 4
+    .global stacks
+stacks:
+    .skip STACK_SIZE * MAX_HARTS

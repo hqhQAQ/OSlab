@@ -10,6 +10,7 @@ INCLUDE = 	-I$(srctree)/arch/riscv/include \
 		-I$(srctree)/include
 
 CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE)
+ASFLAGS = -g
 
 obj = vmlinux
 TOP_DIR = $(PWD)
@@ -31,13 +32,14 @@ export dep
 export INCLUDE
 export LDS
 export CFLAGS
+export ASFLAGS
 
 all : $(obj)
 $(obj):
 	$(MAKE) -C init
 	$(MAKE) -C drivers
 	$(MAKE) -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o arch/riscv/init/main.o drivers/ns16550a.c
+	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o init/main.o drivers/ns16550a.o
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean
