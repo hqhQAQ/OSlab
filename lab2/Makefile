@@ -48,3 +48,5 @@ clean:
 	-rm -f $(TOP_DIR)/$(obj)
 	-rm -f $(TOP_DIR)/System.map 
 	-$(MAKE) -C arch/riscv clean
+	-$(MAKE) -C init clean
+	-$(MAKE) -C lib clean
