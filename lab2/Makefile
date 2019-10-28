@@ -10,7 +10,7 @@ INCLUDE = 	-I$(srctree)/arch/riscv/include \
 		-I$(srctree)/include
 
 CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE)
-ASFLAGS = -g
+ASFLAGS = -g 
 
 obj = vmlinux
 TOP_DIR = $(PWD)
@@ -39,7 +39,7 @@ $(obj):
 	$(MAKE) -C init
 	$(MAKE) -C lib
 	$(MAKE) -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/mtrap.o init/main.o lib/std.a
+	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/*.o init/main.o lib/std.a
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean

@@ -1,21 +1,4 @@
-.equ MAX_HARTS, 4
-.equ SAVE_REGS, 16
-.equ STACK_SIZE, 1024
-.equ STACK_SHIFT, 10
-.equ REGBYTES, 8
-.equ CONTEXT_SIZE, (SAVE_REGS * REGBYTES)
-.equ CLINT_BASE 0x2000000
-.equ MTIMECMP_OFFSET 0x4000
-.equ MTIME 0xBFF8
-
-# save register to stack
-.macro lxsp a, b
-ld \a, ((\b)*REGBYTES)(sp)
-.endm
-
-.macro sxsp a, b
-sd \a, ((\b)*REGBYTES)(sp)
-.endm
+.include "macro.S"
 
 .globl _text_start
 .globl _text_end
@@ -35,63 +18,38 @@ _start:
     # close other harts
     csrr a0, mhartid
     bnez a0, park
-
-    # init mtimecmp
-    li a1, CLINT_BASE
-    addi t2, zero, 1
-    sd t2, 0(a1)
-
     # set up stack
     slli t3, t3, STACK_SHIFT
     la sp, stacks + STACK_SIZE
-    add sp, sp, t3
-
+    add sp, sp, t3    
+    # init .bss
+    la a3, __bss_start
+    la a4, __bss_end
+    ble a4, a3, clear_bss_done
+clear_bss:
+    sd zero, 0(a3)
+    add a3, a3, REGBYTES
+    blt a3, a4, clear_bss
+clear_bss_done:
+    # set mtimecmp
+    li a1, CLINT_BASE
+    addi a1, a1, MTIMECMP_OFFSET
+    addi t2, zero, 10000
+    slli t2, t2, 2
+    sd t2, 0(a1)
+    # disable mie / mip
+    csrw mie, zero
+    csrw mip, zero
+    # set mtvec
+    la t0, mtrap_vector
+    csrw mtvec, t0
     # init ns16550a
     jal ra, ns16550a_init
-
-    # init .bss
-
-    # set mideleg
-
-    # set mtimecmp
-
-    # set [m|s]status, [m|s]ie
-
-    # enable time interrupt
-    li t0, 128
-    csrw mie, t0
-    csrw mip, t0
-    # set mtvec
-    la t0, trap_vector
-    csrw mtvec, t0
-
-    # set mstatus.mie = 1
-    csrr t0, mstatus
-    addi t1, zero, 8
-    or t0, t0, t1
-
-    # set mstatus.mpp = 01 to super mode
-    # addi t1, zero, 1
-    # t1 = 0x0000_0000_0000_0400
-    # slli t1, t1, 11
-    # or t0, t0, t1    
-    # set mstatus.mpie = 0
-    # addi t1, zero, 128
-    # addi t2, t2, -1
-    # xor t1, t1, t2
-    # and t0, t0, t1
-    csrw  mstatus, t0
-    add t0, zero, zero
-
-    # switch to super mode
-    # la t0, Super
-    # csrw mepc, t0
-    # mret
-Super:
     # set stvec
-    # set mtvec
-    # la t0, trap_vector
-    # csrw stvec, t0
+    la t0, strap_vector
+    csrw stvec, t0
+    # set midelege and mstatus
+    call initCSR
     tail start_kernel
 
 park:
@@ -99,7 +57,7 @@ park:
     j park
 
     .align 4
-trap_vector:
+mtrap_vector:
     # Save registers.
     addi    sp, sp, -CONTEXT_SIZE
     sxsp    ra, 0
@@ -120,22 +78,11 @@ trap_vector:
     sxsp    t6, 15
 
     # Invoke the handler.
+    mv      a0, sp
     csrr    a1, mcause
     csrr    a2, mepc    
-    # mcause > 0 == is a exception
-    bgez    a1, exception
-    # mcause < 0 == is a interrupt
-    # mtimecmp += mtime + 2^22
-    li a1, 0x2004000
-    li a2, 0x200BFF8
-    ld t0, 0(a1)
-    ld t1, 0(a2)
-    addi t2, zero, 1
-    slli t2, t2, 22
-    add t0, t1, t2
-    sd t0, 0(a1) 
-    jal ra, trap_handler
-exception:
+    jal ra, mtrap_handler
+    
     # Restore registers.
     lxsp    ra, 0
     lxsp    a0, 1

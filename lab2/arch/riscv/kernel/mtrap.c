@@ -1,9 +1,20 @@
-#include <stdio.h>
-
-// uint8_t *clint = (uint8_t *)(void *)SIFIVE_CLINT_CTRL_ADDR;
-int count = 0;
-
-void trap_handler() 
+void mtrap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc) 
 {
-   printf("%d\n", count++);
+    // interrupt
+   if((long)mcause < 0) {
+
+   }
+   // exception
+   else {
+       switch (mcause)
+       {
+       case 9:
+            unsigned long *mtimecmp = (unsigned long *)0x2004000;
+            unsigned long *mtime = (unsigned long *)0x200BFF8;
+            *mtimecmp = *mtime + 100000;
+            break;   
+       default:
+           break;
+       }
+   }
 }
