@@ -23,20 +23,14 @@ _start:
     la sp, stacks + STACK_SIZE
     add sp, sp, t3    
     # init .bss
-    la a3, __bss_start
-    la a4, __bss_end
+    la a3, _bss_start
+    la a4, _bss_end
     ble a4, a3, clear_bss_done
 clear_bss:
     sd zero, 0(a3)
     add a3, a3, REGBYTES
     blt a3, a4, clear_bss
 clear_bss_done:
-    # set mtimecmp
-    li a1, CLINT_BASE
-    addi a1, a1, MTIMECMP_OFFSET
-    addi t2, zero, 10000
-    slli t2, t2, 2
-    sd t2, 0(a1)
     # disable mie / mip
     csrw mie, zero
     csrw mip, zero
@@ -50,6 +44,9 @@ clear_bss_done:
     csrw stvec, t0
     # set midelege and mstatus
     call initCSR
+    csrr t0, sstatus
+    csrr t1, sie
+    ecall
     tail start_kernel
 
 park:

@@ -1,5 +1,5 @@
 .include "macro.S"
-
+.globl strap_vector
     .align 4
 strap_vector:
     # Save registers.
@@ -25,7 +25,7 @@ strap_vector:
     mv      a0, sp
     csrr    a1, scause
     csrr    a2, sepc    
-    jal ra, strap_handler
+    jal     ra, strap_handler
     
     # Restore registers.
     lxsp    ra, 0
@@ -46,4 +46,4 @@ strap_vector:
     lxsp    t6, 15
     addi sp, sp, CONTEXT_SIZE
     # Return
-    mret
+    sret

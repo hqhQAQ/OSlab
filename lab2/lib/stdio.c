@@ -20,7 +20,11 @@ int putchar(int ch)
     return ns16550a_putchar(ch);
 }
 
-int puts(const char *);
+int puts(const char *s)
+{
+    while(*s) putchar(*s++);
+    putchar('\n');
+}
 
 int snprintf(char* out, size_t n, const char* s, ...)
 {
@@ -34,7 +38,7 @@ int vprintf(const char* s, va_list vl)
 {
     char *out;
     int res = vsnprintf(NULL, -1, s, vl);
-    out = alloca(res + 1);
+    out = __builtin_alloca(res + 1);
     vsnprintf(out, res + 1, s, vl);
     while (*out) putchar(*out++);
     return res;

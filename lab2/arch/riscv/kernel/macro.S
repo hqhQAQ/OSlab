@@ -4,9 +4,9 @@
 .equ STACK_SHIFT, 10
 .equ REGBYTES, 8
 .equ CONTEXT_SIZE, (SAVE_REGS * REGBYTES)
-.equ CLINT_BASE 0x2000000
-.equ MTIMECMP_OFFSET 0x4000
-.equ MTIME 0xBFF8
+.equ CLINT_BASE, 0x2000000
+.equ MTIMECMP_OFFSET, 0x4000
+.equ MTIME, 0xBFF8
 
 # save register to stack
 .macro lxsp a, b

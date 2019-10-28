@@ -1,6 +1,7 @@
 // See LICENSE for license details.
 
 #include <csr.h>
+#include <machine.h>
 #include <stdio.h>
 
 long read_csr_enum(int csrenum)

@@ -1,10 +1,10 @@
 all:std.a
 
 std.a:
-	$(MAKE) -C drivers
-	$(CC) $(CFLAGS) -o stdio.o stdio.c
+	@$(MAKE) --no-print-directory -C drivers
+	$(CC) $(CFLAGS) -c stdio.c -o stdio.o
 	$(AR) cq std.a stdio.o drivers/ns16550a.o
 .PHONY:clean
 clean:
-	$(MAKE) -C drivers clean
-	rm -f stdio.o std.a
+	@$(MAKE) --no-print-directory -C drivers clean
+	-rm -f stdio.o std.a

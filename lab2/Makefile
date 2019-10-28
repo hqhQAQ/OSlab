@@ -36,16 +36,18 @@ export ASFLAGS
 
 all : $(obj)
 $(obj):
-	$(MAKE) -C init
-	$(MAKE) -C lib
-	$(MAKE) -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/*.o init/main.o lib/std.a
+	@$(MAKE) --no-print-directory -C init
+	@$(MAKE) --no-print-directory -C lib
+	@$(MAKE) --no-print-directory -C arch/riscv
+	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/csr.o \
+	arch/riscv/kernel/entry.o arch/riscv/kernel/mtrap.o arch/riscv/kernel/strap.o \
+	arch/riscv/kernel/start.o init/main.o lib/std.a
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean
 clean:
 	-rm -f $(TOP_DIR)/$(obj)
 	-rm -f $(TOP_DIR)/System.map 
-	-$(MAKE) -C arch/riscv clean
-	-$(MAKE) -C init clean
-	-$(MAKE) -C lib clean
+	@$(MAKE) --no-print-directory -C arch/riscv clean
+	@$(MAKE) --no-print-directory -C init clean
+	@$(MAKE) --no-print-directory -C lib clean

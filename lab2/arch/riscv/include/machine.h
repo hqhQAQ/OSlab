@@ -6,6 +6,7 @@
 #include <encoding.h>
 #include <stdio.h>
 
+typedef unsigned long uintptr_t;
 
 #define die(str, ...) ({ \
   printf("%s:%d: " str "\n", __FILE__, __LINE__, ##__VA_ARGS__); })
@@ -58,7 +59,6 @@ __attribute__((noreturn)) static inline void mret()
  */
 static inline void mode_set_and_jump(unsigned mode, void (*fn)(void))
 {
-    assert(mode <= PRV_U);
     write_csr(mstatus, set_field(read_csr(mstatus), MSTATUS_MPP, mode));
     write_csr(mepc, fn);
     mret();
@@ -72,11 +72,12 @@ static inline void mode_set_and_jump(unsigned mode, void (*fn)(void))
  */
 static inline void mode_set_and_continue(unsigned mode)
 {
-    assert(mode <= PRV_U);
     write_csr(mstatus, set_field(read_csr(mstatus), MSTATUS_MPP, mode));
     asm volatile (
         "lla t0, 1f\n"
         "csrw mepc, t0\n"
         "mret\n"
+        "1:"
+        ::: "t0"
     );
 }

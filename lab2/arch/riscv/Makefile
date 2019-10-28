@@ -1,6 +1,6 @@
 a:
-	$(MAKE) -C kernel
+	@$(MAKE) --no-print-directory -C kernel
 
 .PHONY:clean
 clean:
-	-$(MAKE) -C kernel clean
+	@$(MAKE) --no-print-directory -C kernel clean
