@@ -5,7 +5,6 @@
 void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc) 
 {
     static unsigned long count = 0;
-    printf("strap\n");
     // interrupt
     if((long)mcause < 0) {
         mcause &= 0x7FFFFFFFFFFFFFFF;
@@ -15,7 +14,7 @@ void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc
             write_csr_enum(csr_sip, set_field(read_csr_enum(csr_sip), 1 << IRQ_S_TIMER, 0));
             printf("[S] Supervisor Mode Timer Interrupt %d\n", count++);
             {
-                // asm volatile ("ecall");
+                asm volatile ("ecall");
             }
             /* code */
             break;
