@@ -11,7 +11,6 @@ void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc
         switch (mcause)
         {
         case IRQ_S_TIMER:
-            write_csr_enum(csr_sip, set_field(read_csr_enum(csr_sip), 1 << IRQ_S_TIMER, 0));
             printf("[S] Supervisor Mode Timer Interrupt %d\n", count++);
             {
                 asm volatile ("ecall");

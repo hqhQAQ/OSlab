@@ -31,22 +31,16 @@ clear_bss:
     add a3, a3, REGBYTES
     blt a3, a4, clear_bss
 clear_bss_done:
-    # disable mie / mip
-    csrw mie, zero
-    csrw mip, zero
     # set mtvec
     la t0, mtrap_vector
     csrw mtvec, t0
-    # init ns16550a
-    jal ra, ns16550a_init
     # set stvec
     la t0, strap_vector
-    csrw stvec, t0
-    # set midelege and mstatus
+    csrw stvec, t0    
+    # init ns16550a
+    jal ra, ns16550a_init
+    # set csr and switch to s mode
     call initCSR
-    csrr t0, sstatus
-    csrr t1, sie
-    ecall
     tail start_kernel
 
 park:
