@@ -51,3 +51,16 @@ clean:
 	@$(MAKE) --no-print-directory -C arch/riscv clean
 	@$(MAKE) --no-print-directory -C init clean
 	@$(MAKE) --no-print-directory -C lib clean
+
+.PHONY:run
+run:
+	qemu-system-riscv64 -nographic -machine virt -kernel vmlinux
+
+.PHONY:debug
+debug:
+	qemu-system-riscv64 -nographic -machine virt -kernel vmlinux -S -s
+
+.PHONY:gdb
+gdb:
+	riscv64-unknown-linux-gnu-gdb vmlinux
+
