@@ -3,6 +3,8 @@ head.o:head.S
 	$(AS) $(ASFLAGS) -o $@ $< 
 entry.o:entry.S
 	$(AS) $(ASFLAGS) -o $@ $< 
+switch.o:switch.S
+	$(AS) $(ASFLAGS) -o $@ $< 
 
 .PHONY:clean
 clean:

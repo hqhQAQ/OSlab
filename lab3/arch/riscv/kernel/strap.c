@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <machine.h>
 #include <csr.h>
+#include <sched.h>
 
 void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc) 
 {
@@ -11,7 +12,7 @@ void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc
         switch (mcause)
         {
         case IRQ_S_TIMER:
-            printf("[S] Supervisor Mode Timer Interrupt %d\n", count++);
+            do_timer(0);
             {
                 asm volatile ("ecall");
             }
