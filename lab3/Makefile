@@ -20,6 +20,7 @@ LDS = -T$(TOP_DIR)/arch/riscv/kernel/vmlinux.lds
 srctree = $(TOP_DIR)
 objtree = $(TOP_DIR)
 
+dependence = 
 
 export CC
 export LD
@@ -34,16 +35,27 @@ export LDS
 export CFLAGS
 export ASFLAGS
 
-all : $(obj)
-$(obj):
+all: main lib kernel vmlinux System.map 
+
+.PHONY:main
+main:
 	@$(MAKE) --no-print-directory -C init
+
+.PHONY:lib
+lib:
 	@$(MAKE) --no-print-directory -C lib
+
+.PHONY:kernel
+kernel:
 	@$(MAKE) --no-print-directory -C arch/riscv
-	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/csr.o \
-	arch/riscv/kernel/entry.o arch/riscv/kernel/mtrap.o arch/riscv/kernel/strap.o \
-	arch/riscv/kernel/start.o arch/riscv/kernel/switch.o arch/riscv/kernel/sched.o \
-	arch/riscv/kernel/syscall.o init/main.o lib/std.a
-	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
+
+vmlinux:main lib kernel
+	@echo LD $@
+	@$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/*.o init/main.o lib/std.a
+
+System.map:vmlinux	
+	@echo NM System.map
+	@$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean
 clean:
