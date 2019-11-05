@@ -2,6 +2,7 @@
 #include <machine.h>
 #include <csr.h>
 #include <sched.h>
+#include <syscall.h>
 
 void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc) 
 {
@@ -12,10 +13,8 @@ void strap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc
         switch (mcause)
         {
         case IRQ_S_TIMER:
-            do_timer(0);
-            {
-                asm volatile ("ecall");
-            }
+            do_timer(1);
+            sys_overTimeInterrupt();
             /* code */
             break;
         default:

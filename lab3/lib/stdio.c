@@ -2,16 +2,19 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <ns16550a.h>
+#include <syscall.h>
 
 int getchar(void);
 
 int printf(const char* s, ...)
 {
     int res = 0;
+    sys_disableTimeInterrupt();
     va_list vl;
     va_start(vl, s);
     res = vprintf(s, vl);
     va_end(vl);
+    sys_enableTimeInterrupt();
     return res;
 }
 
@@ -22,8 +25,11 @@ int putchar(int ch)
 
 int puts(const char *s)
 {
+    sys_disableTimeInterrupt();
     while(*s) putchar(*s++);
     putchar('\n');
+    sys_enableTimeInterrupt();
+    return 0;
 }
 
 int snprintf(char* out, size_t n, const char* s, ...)

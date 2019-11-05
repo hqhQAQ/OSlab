@@ -1,4 +1,6 @@
 #include <sched.h>
+#include <stdio.h>
+#include <syscall.h>
 
 union task_union {
 	struct task_struct task;
@@ -43,12 +45,17 @@ void schedule()
 		for(p = &LAST_TASK; p > &FIRST_TASK; --p)
 			if (*p)
 				(*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
-	}
+	}	
+	printf("[!] Switch from task %d to %d, prio: %d, counter: %d\n", 
+		current->pid, task[next]->pid, task[next]->priority, task[next]->counter);
 	switch_to(next);
 }
 
 inline void switch_to(int n) {
-    rswitch_to(&current->tss, &task[n]->tss);
+	struct task_struct *temp = current;
+
+	current = task[n];
+    rswitch_to(&(temp->tss), &(task[n]->tss));
 }
 
 //// 时钟中断C 函数处理程序，在kernel/system_call.s 中的_timer_interrupt（176 行）被调用。
@@ -73,7 +80,10 @@ void do_timer(long cpl)
 
 void idle() 
 {
+	printf("[PID = %d] Please Prove Your Context Switch is Right in each Child Process\n", current->pid);
+	// sys_enableTimeInterrupt();
     while(1);
+		// printf("%ld: %d\n", ++count, current->pid);
 }
 
 void sched_init() 

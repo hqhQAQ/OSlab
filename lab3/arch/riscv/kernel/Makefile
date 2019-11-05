@@ -1,4 +1,4 @@
-all:head.o mtrap.o entry.o start.o strap.o csr.o switch.o sched.o
+all:head.o mtrap.o entry.o start.o strap.o csr.o switch.o sched.o syscall.o
 head.o:head.S
 	$(AS) $(ASFLAGS) -o $@ $< 
 entry.o:entry.S

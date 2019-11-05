@@ -41,7 +41,8 @@ $(obj):
 	@$(MAKE) --no-print-directory -C arch/riscv
 	$(LD) $(LDS) -o $(TOP_DIR)/$(obj) arch/riscv/kernel/head.o arch/riscv/kernel/csr.o \
 	arch/riscv/kernel/entry.o arch/riscv/kernel/mtrap.o arch/riscv/kernel/strap.o \
-	arch/riscv/kernel/start.o arch/riscv/kernel/switch.o arch/riscv/kernel/sched.o init/main.o lib/std.a
+	arch/riscv/kernel/start.o arch/riscv/kernel/switch.o arch/riscv/kernel/sched.o \
+	arch/riscv/kernel/syscall.o init/main.o lib/std.a
 	$(NM) -n $(obj) | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > System.map
 
 .PHONY:clean

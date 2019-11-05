@@ -8,6 +8,7 @@
 
 #define NR_TASKS 16
 #define PAGE_SIZE 4096
+#define STACK 0x80003560
 
 enum PROC_STATE{
     TASK_RUNNING,
@@ -69,7 +70,7 @@ struct task_struct {
  */
 #define INIT_TASK \
 /* state etc */	{ 0,15,15, 0, 0, 0,\
-/* todo tss */    {(uint64_t)idle, 0, stacks, 0, 0, 0, 0, 0, \
+/* todo tss */    {(uint64_t)idle, 0, (uint64_t)STACK, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0 \
@@ -77,7 +78,7 @@ struct task_struct {
                 }
 
 extern struct task_struct * current;
-extern task_struct * task[NR_TASKS];
+extern struct task_struct * task[NR_TASKS];
 
 extern void rswitch_to(struct tss_struct *from, struct tss_struct *to);
 void switch_to(int n);
