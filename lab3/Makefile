@@ -8,8 +8,8 @@ NM		= $(CROSS_COMPILE)nm
 
 INCLUDE = 	-I$(srctree)/arch/riscv/include \
 			-I$(srctree)/lib/include
-
-CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE)
+SCHEDULE := PREEMPTIVE
+CFLAGS = -g -mcmodel=medany -ffunction-sections -fdata-sections $(INCLUDE) -D$(SCHEDULE) 
 ASFLAGS = -g 
 
 obj = vmlinux

@@ -10,6 +10,7 @@ static union task_union init_task = { INIT_TASK, };
 struct task_struct * current = &(init_task.task);
 struct task_struct * task[NR_TASKS] = {&(init_task.task), };
 
+#ifndef PREEMPTIVE
 /*
  *  'schedule()' is the scheduler function. This is GOOD CODE! There
  * probably won't be any reason to change this, as it should work well
@@ -46,10 +47,56 @@ void schedule()
 			if (*p)
 				(*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
 	}	
-	printf("[!] Switch from task %d to %d, prio: %d, counter: %d\n", 
+	printf("\e[34m[!] Switch from task %d to %d, prio: %d, counter: %d\e[0m\n", 
 		current->pid, task[next]->pid, task[next]->priority, task[next]->counter);
 	switch_to(next);
 }
+#else
+void schedule()
+{
+	int i,next,c, max_priority;
+	struct task_struct ** p;
+
+	while (1) {
+		c = -1;
+		max_priority = -1;
+		next = 0;
+		i = NR_TASKS;
+		p = &task[NR_TASKS];
+		// find the max add_prority with time
+		while (--i) {
+			if (!*--p)
+				continue;
+			if ((*p)->state == TASK_RUNNING && (*p)->counter > 0 
+					&& (*p)->add_priority > max_priority) {
+				max_priority = (*p)->add_priority;
+            }
+		}
+		// printf("maxpriority : %d\n", max_priority);
+		i = NR_TASKS;
+		p = &task[NR_TASKS];
+		while (--i) {
+			if (!*--p)
+				continue;
+			if ((*p)->state == TASK_RUNNING && (*p)->add_priority == max_priority 
+					&& (*p)->counter > c) {
+				c = (*p)->counter;
+                next = i;
+            }
+		}
+		if (c > 0) 
+            break;
+		for(p = &LAST_TASK; p > &FIRST_TASK; --p)
+			if (*p)
+				(*p)->counter = ((*p)->counter >> 1) + (*p)->priority;
+	}	
+	printf("\e[34m[!] Switch from task %d to %d, add_prio: %d, counter: %d\e[0m\n", 
+		current->pid, task[next]->pid, task[next]->add_priority, task[next]->counter);
+	if(current == task[next])
+		return;
+	switch_to(next);
+}
+#endif
 
 inline void switch_to(int n) {
 	struct task_struct *temp = current;
@@ -70,9 +117,18 @@ void do_timer(long cpl)
 	else
 		current->stime++;
 
+#ifndef PREEMPTIVE
 	if ((--current->counter) > 0)
 		return;			// 如果进程运行时间还没完，则退出。
 	current->counter = 0;
+#else
+	if(current->counter > 0)
+		--current->counter;
+	if(current->counter < 3 && current->pid == 4) {
+		--current->add_priority;
+		printf("\e[31m[PID = %d] Priority Update %d -> %d\e[0m\n", current->pid, current->add_priority + 1, current->add_priority);
+	}
+#endif
 	if (!cpl)
 		return;			// 对于超级用户程序，不依赖counter 值进行调度。
 	schedule();
@@ -80,10 +136,9 @@ void do_timer(long cpl)
 
 void idle() 
 {
-	printf("[PID = %d] Please Prove Your Context Switch is Right in each Child Process\n", current->pid);
+	printf("\e[33m[PID = %d] Please Prove Your Context Switch is Right in each Child Process\e[0m\n", current->pid);
 	// sys_enableTimeInterrupt();
     while(1);
-		// printf("%ld: %d\n", ++count, current->pid);
 }
 
 void sched_init() 

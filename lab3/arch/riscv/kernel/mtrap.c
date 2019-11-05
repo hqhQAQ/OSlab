@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <csr.h>
 #include <machine.h>
+#include <configure.h>
 
 void mtrap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc) 
 {
@@ -34,7 +35,7 @@ void mtrap_handler(unsigned long* regs, unsigned long mcause, unsigned long mepc
                 // printf("s software exception\n");
                 unsigned long *mtimecmp = (void *)0x2004000;
                 unsigned long *mtime = (void *)0x200BFF8;
-                *mtimecmp = *mtime + 500000;
+                *mtimecmp = *mtime + TIME_SLICE;
                 // close s time interrupt
                 write_csr_enum(csr_mip, set_field(read_csr_enum(csr_mip), 1 << IRQ_S_TIMER, 0));
                 // open m time interrupt

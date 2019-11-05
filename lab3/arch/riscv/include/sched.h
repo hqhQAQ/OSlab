@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 
+#ifdef PREEMPTIVE
+#define TNOP 5
+#endif
+
 #define FIRST_TASK task[0]
 #define LAST_TASK task[NR_TASKS-1]
 
@@ -60,26 +64,40 @@ struct task_struct {
 	long priority;
 	long pid;
 	long utime, stime;
+#ifdef PREEMPTIVE
+	unsigned short add_priority;
+#endif
 /* tss for this task */
 	struct tss_struct tss;
 };
 
 /*
- *  INIT_TASK is used to set up the first task table, touch at
- * your own risk!. Base=0, limit=0x9ffff (=640kB)
+ *  INIT_TASK is used to set up the first task table
  */
+#ifdef PREEMPTIVE
 #define INIT_TASK \
-/* state etc */	{ 0,15,15, 0, 0, 0,\
+/* state etc */	{ 0,15,15, 0, 0, 0, 0, \
 /* todo tss */    {(uint64_t)idle, 0, (uint64_t)STACK, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0 \
 				  } \
                 }
+#else
+#define INIT_TASK \
+/* state etc */	{ 0,15,15, 0, 0, 0, \
+/* todo tss */    {(uint64_t)idle, 0, (uint64_t)STACK, 0, 0, 0, 0, 0, \
+				  0, 0, 0, 0, 0, 0, 0, 0, \
+				  0, 0, 0, 0, 0, 0, 0, 0, \
+				  0, 0, 0, 0, 0, 0, 0, 0 \
+				  } \
+                }
+#endif
 
 extern struct task_struct * current;
 extern struct task_struct * task[NR_TASKS];
 
+// 
 extern void rswitch_to(struct tss_struct *from, struct tss_struct *to);
 void switch_to(int n);
 void idle();

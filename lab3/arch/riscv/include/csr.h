@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CSR_H
+#define CSR_H
 
 long read_csr_enum(int csrenum);
 void write_csr_enum(int csrenum, long value);
@@ -68,3 +69,5 @@ enum {
     csr_pmpaddr14,
     csr_pmpaddr15
 };
+
+#endif
