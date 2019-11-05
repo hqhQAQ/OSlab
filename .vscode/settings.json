@@ -1,7 +1,0 @@
-{
-    "git.ignoreLimitWarning": true,
-    "files.associations": {
-        "sched.h": "c"
-    },
-    "C_Cpp.errorSquiggles": "Disabled"
-}
