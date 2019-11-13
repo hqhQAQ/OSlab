@@ -12,7 +12,8 @@
 
 #define NR_TASKS 16
 #define PAGE_SIZE 4096
-#define STACK 0x80003560
+
+extern unsigned char stacks[PAGE_SIZE * NR_TASKS];
 
 enum PROC_STATE{
     TASK_RUNNING,
@@ -77,7 +78,7 @@ struct task_struct {
 #ifdef PREEMPTIVE
 #define INIT_TASK \
 /* state etc */	{ 0,15,15, 0, 0, 0, 0, \
-/* todo tss */    {(uint64_t)idle, 0, (uint64_t)STACK, 0, 0, 0, 0, 0, \
+/* todo tss */    {(uint64_t)idle, 0, (uint64_t)stacks + PAGE_SIZE * 2, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0 \
@@ -86,7 +87,7 @@ struct task_struct {
 #else
 #define INIT_TASK \
 /* state etc */	{ 0,15,15, 0, 0, 0, \
-/* todo tss */    {(uint64_t)idle, 0, (uint64_t)STACK, 0, 0, 0, 0, 0, \
+/* todo tss */    {(uint64_t)idle, 0, (uint64_t)stacks + PAGE_SIZE * 2, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0 \

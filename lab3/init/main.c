@@ -7,7 +7,7 @@ void process();
 #ifdef PREEMPTIVE
 #define TASK(N) \
 /* state etc */	{ 0, 5, N * 10, N, 0, 0, N, \
-/* todo tss */    {(uint64_t)process, 0, (uint64_t)STACK + (N + 2) * PAGE_SIZE, 0, 0, 0, 0, 0, \
+/* todo tss */    {(uint64_t)process, 0, (uint64_t)stacks + (N + 2) * PAGE_SIZE, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0 \
@@ -16,7 +16,7 @@ void process();
 #else
 #define TASK(N) \
 /* state etc */	{ 0, 5, N * 10, N, 0, 0, \
-/* todo tss */    {(uint64_t)process, 0, (uint64_t)STACK + (N + 2) * PAGE_SIZE, 0, 0, 0, 0, 0, \
+/* todo tss */    {(uint64_t)process, 0, (uint64_t)stacks + (N + 2) * PAGE_SIZE, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0, \
 				  0, 0, 0, 0, 0, 0, 0, 0 \
@@ -30,7 +30,7 @@ struct task_struct t[4] = {TASK(1), TASK(2), TASK(3), TASK(4)};
 
 void start_kernel()
 {
-    printf("\e[33m[S] ZJU OS Lab 2             ID:3170101209\n\e[0m");
+    printf("\e[33m[S] ZJU OS Lab 3             ID:3170101209\n\e[0m");
     task_initialize();
     idle();
 }
