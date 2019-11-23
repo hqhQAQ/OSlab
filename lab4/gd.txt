@@ -1,0 +1,6 @@
+make gdb
+target remote localhost:1234
+add-symbol-file vmlinux -s .text 0x80000000
+y
+b *0x80000000
+c
