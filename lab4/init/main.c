@@ -30,7 +30,7 @@ struct task_struct t[4] = {TASK(1), TASK(2), TASK(3), TASK(4)};
 
 void start_kernel()
 {
-    printf("\e[33m[S] ZJU OS Lab 3             ID:3170101209\n\e[0m");
+    printf("\e[33m[S] ZJU OS Lab 4             ID:3170101209\n\e[0m");
     task_initialize();
     idle();
 }
