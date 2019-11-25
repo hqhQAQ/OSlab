@@ -36,6 +36,8 @@ clear_bss_done:
     # set csr and switch to s mode
     call initCSR
 	call total_mapping
+	call enter_s_mode
+	call init_sstatus
     call init_satp
 	# jump to low address
 	la t0, after_virtual
@@ -65,7 +67,7 @@ park:
 mtrap_vector:
     # Save registers.
     csrw    mscratch, sp
-    la      sp, stacks + STACK_SIZE
+    la      sp, stacks + STACK_SIZE * 3
     addi    sp, sp, -CONTEXT_SIZE
     save_all sp
 

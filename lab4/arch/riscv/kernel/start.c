@@ -13,5 +13,10 @@ void initCSR()
     write_csr_enum(csr_sstatus, set_field(read_csr_enum(csr_sstatus), SSTATUS_SIE, 1));
     write_csr_enum(csr_sie, set_field(read_csr_enum(csr_sie), 1 << IRQ_S_TIMER, 1));
     write_csr_enum(csr_mstatus, set_field(read_csr_enum(csr_mstatus), MSTATUS_MIE, 1));
-    mode_set_and_continue(PRV_S);
+    // mode_set_and_continue(PRV_S);
+}
+
+void enter_s_mode()
+{
+	mode_set_and_continue(PRV_S);
 }

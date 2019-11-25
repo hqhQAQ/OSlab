@@ -7,6 +7,11 @@ void init_satp()
 	num += 1;
 }   
 
+void init_sstatus()
+{
+	write_csr_enum(csr_sstatus, set_field(read_csr_enum(csr_sstatus), 1 << 18, 1));
+}
+
 uint64_t read_memory(uint64_t* p)
 {
     return ((uint64_t)(*p));
@@ -62,11 +67,14 @@ void create_mapping(uint64_t v_page_num, uint64_t p_page_num, int x, int w, int 
 	// first level page
 	uint64_t va = v_page_num << 12;
 	uint64_t pa = p_page_num << 12;
+	uint64_t vpn2 = read_truncate_num(va, 30, 38);
+    uint64_t vpn1 = read_truncate_num(va, 21, 29);
+	if (vpn2 == 0 && vpn1 >= 3 && v_page_num != 0x1002 && v_page_num != 0x2004 && v_page_num != 0x200B) return;	// mark
     uint64_t first_page_addr = PAGE_START + (read_truncate_num(va, 30, 38) << 3);
     uint64_t first_page_content = 0x0;
 	first_page_content = write_truncate_num(first_page_content, get_page_addr(v_page_num, 2) >> 12, 10, 53);
     first_page_content = write_truncate_num(first_page_content, 0x1, 0, 0);
-    first_page_content = write_truncate_num(first_page_content, 0x3, 6, 7);
+    // first_page_content = write_truncate_num(first_page_content, 0x3, 6, 7);
     write_memory((uint64_t*)first_page_addr, first_page_content);
     uint64_t first_pte = read_memory((uint64_t*)first_page_addr);
     // second level page
@@ -74,7 +82,7 @@ void create_mapping(uint64_t v_page_num, uint64_t p_page_num, int x, int w, int 
     uint64_t second_page_content = 0x0;
     second_page_content = write_truncate_num(second_page_content, get_page_addr(v_page_num, 3) >> 12, 10, 53);
     second_page_content = write_truncate_num(second_page_content, 0x1, 0, 0);
-    second_page_content = write_truncate_num(second_page_content, 0x3, 6, 7);
+    // second_page_content = write_truncate_num(second_page_content, 0x3, 6, 7);
     write_memory((uint64_t*)second_page_addr, second_page_content);
     uint64_t second_pte = read_memory((uint64_t*)second_page_addr);
     // third level page
@@ -83,7 +91,7 @@ void create_mapping(uint64_t v_page_num, uint64_t p_page_num, int x, int w, int 
     third_page_content = write_truncate_num(third_page_content, pa >> 12, 10, 53);
 	uint64_t w_num = x * 8 + w * 4 + r * 2 + 1;	// may cause an error
 	third_page_content = write_truncate_num(third_page_content, w_num, 0, 3);
-    third_page_content = write_truncate_num(third_page_content, 0x3, 6, 7);
+    // third_page_content = write_truncate_num(third_page_content, 0x3, 6, 7);
     write_memory((uint64_t*)third_page_addr, third_page_content);
     uint64_t third_pte = read_memory((uint64_t*)third_page_addr);
     // physical addr
@@ -116,9 +124,8 @@ int test_rwx()
 
 void total_mapping()
 {
-	write_csr_enum(csr_sstatus, set_field(read_csr_enum(csr_sstatus), 1 << 18, 1));
-	int i = 0;
-	for (;i < 1024;i++)
+	int i = 4096 - 1;
+	for (;i >= 0;i--)
 	{
 		if (i >= 0 && i < 4)
 			create_mapping(i + 2, 0x80000 + i, 1, 0, 1);
@@ -127,6 +134,7 @@ void total_mapping()
 		else
 			create_mapping(i + 2, 0x80000 + i, 0, 1, 1);
 	}
+
 	create_mapping(0x80000, 0x80000, 1, 1, 1);
 	create_mapping(0x80001, 0x80001, 1, 1, 1);
 	create_mapping(0x80002, 0x80002, 1, 1, 1);
